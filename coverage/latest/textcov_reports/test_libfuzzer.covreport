@@ -9,57 +9,57 @@ freezero:
    32|      1|}
 
 ibuf_open:
-   39|  1.31k|{
-   40|  1.31k|	struct ibuf	*buf;
+   39|  1.33k|{
+   40|  1.33k|	struct ibuf	*buf;
    41|       |
-   42|  1.31k|	if ((buf = calloc(1, sizeof(struct ibuf))) == NULL)
+   42|  1.33k|	if ((buf = calloc(1, sizeof(struct ibuf))) == NULL)
    43|      0|		return (NULL);
-   44|  1.31k|	if ((buf->buf = malloc(len)) == NULL) {
+   44|  1.33k|	if ((buf->buf = malloc(len)) == NULL) {
    45|      0|		free(buf);
    46|      0|		return (NULL);
    47|      0|	}
-   48|  1.31k|	buf->size = buf->max = len;
-   49|  1.31k|	buf->fd = -1;
+   48|  1.33k|	buf->size = buf->max = len;
+   49|  1.33k|	buf->fd = -1;
    50|       |
-   51|  1.31k|	return (buf);
-   52|  1.31k|}
+   51|  1.33k|	return (buf);
+   52|  1.33k|}
 ibuf_dynamic:
-   56|  1.31k|{
-   57|  1.31k|	struct ibuf	*buf;
+   56|  1.33k|{
+   57|  1.33k|	struct ibuf	*buf;
    58|       |
-   59|  1.31k|	if (max < len)
+   59|  1.33k|	if (max < len)
    60|      0|		return (NULL);
    61|       |
-   62|  1.31k|	if ((buf = ibuf_open(len)) == NULL)
+   62|  1.33k|	if ((buf = ibuf_open(len)) == NULL)
    63|      0|		return (NULL);
    64|       |
-   65|  1.31k|	if (max > 0)
-   66|  1.31k|		buf->max = max;
+   65|  1.33k|	if (max > 0)
+   66|  1.33k|		buf->max = max;
    67|       |
-   68|  1.31k|	return (buf);
-   69|  1.31k|}
+   68|  1.33k|	return (buf);
+   69|  1.33k|}
 ibuf_add:
-   93|  1.31k|{
-   94|  1.31k|	if (buf->wpos + len > buf->size)
+   93|  1.33k|{
+   94|  1.33k|	if (buf->wpos + len > buf->size)
    95|      0|		if (ibuf_realloc(buf, len) == -1)
    96|      0|			return (-1);
    97|       |
-   98|  1.31k|	memcpy(buf->buf + buf->wpos, data, len);
-   99|  1.31k|	buf->wpos += len;
-  100|  1.31k|	return (0);
-  101|  1.31k|}
+   98|  1.33k|	memcpy(buf->buf + buf->wpos, data, len);
+   99|  1.33k|	buf->wpos += len;
+  100|  1.33k|	return (0);
+  101|  1.33k|}
 ibuf_seek:
-  119|   122k|{
+  119|   125k|{
   120|       |	/* only allowed to seek in already written parts */
-  121|   122k|	if (pos + len > buf->wpos)
-  122|    880|		return (NULL);
+  121|   125k|	if (pos + len > buf->wpos)
+  122|    918|		return (NULL);
   123|       |
-  124|   121k|	return (buf->buf + pos);
-  125|   122k|}
+  124|   124k|	return (buf->buf + pos);
+  125|   125k|}
 ibuf_size:
-  129|    911|{
-  130|    911|	return (buf->wpos);
-  131|    911|}
+  129|    933|{
+  130|    933|	return (buf->wpos);
+  131|    933|}
 ibuf_free:
   218|      1|{
   219|      1|	if (buf == NULL)
@@ -69,225 +69,225 @@ ibuf_free:
   223|      1|}
 
 strlcpy:
-   29|  85.2k|{
-   30|  85.2k|	const char *osrc = src;
-   31|  85.2k|	size_t nleft = dsize;
+   29|  87.5k|{
+   30|  87.5k|	const char *osrc = src;
+   31|  87.5k|	size_t nleft = dsize;
    32|       |
    33|       |	/* Copy as many bytes as will fit. */
-   34|  85.2k|	if (nleft != 0) {
-   35|   463k|		while (--nleft != 0) {
-   36|   463k|			if ((*dst++ = *src++) == '\0')
-   37|  85.2k|				break;
-   38|   463k|		}
-   39|  85.2k|	}
+   34|  87.5k|	if (nleft != 0) {
+   35|   475k|		while (--nleft != 0) {
+   36|   474k|			if ((*dst++ = *src++) == '\0')
+   37|  87.4k|				break;
+   38|   474k|		}
+   39|  87.5k|	}
    40|       |
    41|       |	/* Not enough room in dst, add NUL and traverse rest of src. */
-   42|  85.2k|	if (nleft == 0) {
+   42|  87.5k|	if (nleft == 0) {
    43|     50|		if (dsize != 0)
    44|     50|			*dst = '\0';		/* NUL-terminate dst */
    45|     50|		while (*src++)
    46|      0|			;
    47|     50|	}
    48|       |
-   49|  85.2k|	return(src - osrc - 1);	/* count does not include NUL */
-   50|  85.2k|}
+   49|  87.5k|	return(src - osrc - 1);	/* count does not include NUL */
+   50|  87.5k|}
 
 ikev2_pld_parse:
-  117|    911|{
-  118|    911|	log_debug("%s: header ispi %s rspi %s"
-  119|    911|	    " nextpayload %s version 0x%02x exchange %s flags 0x%02x"
-  120|    911|	    " msgid %d length %u response %d", __func__,
-  121|    911|	    print_spi(betoh64(hdr->ike_ispi), 8),
-  122|    911|	    print_spi(betoh64(hdr->ike_rspi), 8),
-  123|    911|	    print_map(hdr->ike_nextpayload, ikev2_payload_map),
-  124|    911|	    hdr->ike_version,
-  125|    911|	    print_map(hdr->ike_exchange, ikev2_exchange_map),
-  126|    911|	    hdr->ike_flags,
-  127|    911|	    betoh32(hdr->ike_msgid),
-  128|    911|	    betoh32(hdr->ike_length),
-  129|    911|	    msg->msg_response);
+  117|    933|{
+  118|    933|	log_debug("%s: header ispi %s rspi %s"
+  119|    933|	    " nextpayload %s version 0x%02x exchange %s flags 0x%02x"
+  120|    933|	    " msgid %d length %u response %d", __func__,
+  121|    933|	    print_spi(betoh64(hdr->ike_ispi), 8),
+  122|    933|	    print_spi(betoh64(hdr->ike_rspi), 8),
+  123|    933|	    print_map(hdr->ike_nextpayload, ikev2_payload_map),
+  124|    933|	    hdr->ike_version,
+  125|    933|	    print_map(hdr->ike_exchange, ikev2_exchange_map),
+  126|    933|	    hdr->ike_flags,
+  127|    933|	    betoh32(hdr->ike_msgid),
+  128|    933|	    betoh32(hdr->ike_length),
+  129|    933|	    msg->msg_response);
   130|       |
-  131|    911|	if (ibuf_size(msg->msg_data) < betoh32(hdr->ike_length)) {
+  131|    933|	if (ibuf_size(msg->msg_data) < betoh32(hdr->ike_length)) {
   132|      6|		log_debug("%s: short message", __func__);
   133|      6|		return (-1);
   134|      6|	}
   135|       |
-  136|    905|	offset += sizeof(*hdr);
+  136|    927|	offset += sizeof(*hdr);
   137|       |
-  138|    905|	return (ikev2_pld_payloads(env, msg, offset,
-  139|    905|	    betoh32(hdr->ike_length), hdr->ike_nextpayload));
-  140|    911|}
+  138|    927|	return (ikev2_pld_payloads(env, msg, offset,
+  139|    927|	    betoh32(hdr->ike_length), hdr->ike_nextpayload));
+  140|    933|}
 ikev2_validate_pld:
-  145|  41.5k|{
-  146|  41.5k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
-  147|  41.5k|	size_t		 pld_length;
+  145|  42.6k|{
+  146|  42.6k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+  147|  42.6k|	size_t		 pld_length;
   148|       |
   149|       |	/* We need at least the generic header. */
-  150|  41.5k|	if (left < sizeof(*pld)) {
-  151|    113|		log_debug("%s: malformed payload: too short for generic "
-  152|    113|		    "header (%zu < %zu)", __func__, left, sizeof(*pld));
-  153|    113|		return (-1);
-  154|    113|	}
-  155|  41.4k|	memcpy(pld, msgbuf + offset, sizeof(*pld));
+  150|  42.6k|	if (left < sizeof(*pld)) {
+  151|    121|		log_debug("%s: malformed payload: too short for generic "
+  152|    121|		    "header (%zu < %zu)", __func__, left, sizeof(*pld));
+  153|    121|		return (-1);
+  154|    121|	}
+  155|  42.5k|	memcpy(pld, msgbuf + offset, sizeof(*pld));
   156|       |
   157|       |	/*
   158|       |	 * We need at least the specified number of bytes.
   159|       |	 * pld_length is the full size of the payload including
   160|       |	 * the generic payload header.
   161|       |	 */
-  162|  41.4k|	pld_length = betoh16(pld->pld_length);
-  163|  41.4k|	if (left < pld_length) {
-  164|    243|		log_debug("%s: malformed payload: shorter than specified "
-  165|    243|		    "(%zu < %zu)", __func__, left, pld_length);
-  166|    243|		return (-1);
-  167|    243|	}
+  162|  42.5k|	pld_length = betoh16(pld->pld_length);
+  163|  42.5k|	if (left < pld_length) {
+  164|    253|		log_debug("%s: malformed payload: shorter than specified "
+  165|    253|		    "(%zu < %zu)", __func__, left, pld_length);
+  166|    253|		return (-1);
+  167|    253|	}
   168|       |	/*
   169|       |	 * Sanity check the specified payload size, it must
   170|       |	 * be at least the size of the generic payload header.
   171|       |	 */
-  172|  41.2k|	if (pld_length < sizeof(*pld)) {
-  173|     75|		log_debug("%s: malformed payload: shorter than minimum "
-  174|     75|		    "header size (%zu < %zu)", __func__, pld_length,
-  175|     75|		    sizeof(*pld));
-  176|     75|		return (-1);
-  177|     75|	}
+  172|  42.2k|	if (pld_length < sizeof(*pld)) {
+  173|     79|		log_debug("%s: malformed payload: shorter than minimum "
+  174|     79|		    "header size (%zu < %zu)", __func__, pld_length,
+  175|     79|		    sizeof(*pld));
+  176|     79|		return (-1);
+  177|     79|	}
   178|       |
-  179|  41.1k|	return (0);
-  180|  41.2k|}
+  179|  42.1k|	return (0);
+  180|  42.2k|}
 ikev2_pld_payloads:
-  185|    905|{
-  186|    905|	struct ikev2_payload	 pld;
-  187|    905|	unsigned int		 e;
-  188|    905|	int			 ret;
-  189|    905|	uint8_t			*msgbuf = ibuf_data(msg->msg_data);
-  190|    905|	size_t			 total, left;
+  185|    927|{
+  186|    927|	struct ikev2_payload	 pld;
+  187|    927|	unsigned int		 e;
+  188|    927|	int			 ret;
+  189|    927|	uint8_t			*msgbuf = ibuf_data(msg->msg_data);
+  190|    927|	size_t			 total, left;
   191|       |
   192|       |	/* Check if message was decrypted in an E payload */
-  193|    905|	e = msg->msg_e ? IKED_E : 0;
+  193|    927|	e = msg->msg_e ? IKED_E : 0;
   194|       |
   195|       |	/* Bytes left in datagram. */
-  196|    905|	total = length - offset;
+  196|    927|	total = length - offset;
   197|       |
-  198|  42.0k|	while (payload != 0 && offset < length) {
-  199|  41.5k|		if (ikev2_validate_pld(msg, offset, total, &pld))
-  200|    431|			return (-1);
+  198|  43.1k|	while (payload != 0 && offset < length) {
+  199|  42.6k|		if (ikev2_validate_pld(msg, offset, total, &pld))
+  200|    453|			return (-1);
   201|       |
-  202|  41.1k|		log_debug("%s: %spayload %s"
-  203|  41.1k|		    " nextpayload %s critical 0x%02x length %d",
-  204|  41.1k|		    __func__, e ? "decrypted " : "",
-  205|  41.1k|		    print_map(payload, ikev2_payload_map),
-  206|  41.1k|		    print_map(pld.pld_nextpayload, ikev2_payload_map),
-  207|  41.1k|		    pld.pld_reserved & IKEV2_CRITICAL_PAYLOAD,
-  208|  41.1k|		    betoh16(pld.pld_length));
+  202|  42.1k|		log_debug("%s: %spayload %s"
+  203|  42.1k|		    " nextpayload %s critical 0x%02x length %d",
+  204|  42.1k|		    __func__, e ? "decrypted " : "",
+  205|  42.1k|		    print_map(payload, ikev2_payload_map),
+  206|  42.1k|		    print_map(pld.pld_nextpayload, ikev2_payload_map),
+  207|  42.1k|		    pld.pld_reserved & IKEV2_CRITICAL_PAYLOAD,
+  208|  42.1k|		    betoh16(pld.pld_length));
   209|       |
   210|       |		/* Skip over generic payload header. */
-  211|  41.1k|		offset += sizeof(pld);
-  212|  41.1k|		total -= sizeof(pld);
-  213|  41.1k|		left = betoh16(pld.pld_length) - sizeof(pld);
-  214|  41.1k|		ret = 0;
+  211|  42.1k|		offset += sizeof(pld);
+  212|  42.1k|		total -= sizeof(pld);
+  213|  42.1k|		left = betoh16(pld.pld_length) - sizeof(pld);
+  214|  42.1k|		ret = 0;
   215|       |
-  216|  41.1k|		switch (payload | e) {
+  216|  42.1k|		switch (payload | e) {
   217|      0|		case IKEV2_PAYLOAD_SA:
-  218|  7.92k|		case IKEV2_PAYLOAD_SA | IKED_E:
-  219|  7.92k|			ret = ikev2_pld_sa(env, &pld, msg, offset, left);
-  220|  7.92k|			break;
+  218|  7.98k|		case IKEV2_PAYLOAD_SA | IKED_E:
+  219|  7.98k|			ret = ikev2_pld_sa(env, &pld, msg, offset, left);
+  220|  7.98k|			break;
   221|      0|		case IKEV2_PAYLOAD_KE:
-  222|    623|		case IKEV2_PAYLOAD_KE | IKED_E:
-  223|    623|			ret = ikev2_pld_ke(env, &pld, msg, offset, left);
-  224|    623|			break;
-  225|  1.10k|		case IKEV2_PAYLOAD_IDi | IKED_E:
-  226|  1.29k|		case IKEV2_PAYLOAD_IDr | IKED_E:
-  227|  1.29k|			ret = ikev2_pld_id(env, &pld, msg, offset, left,
-  228|  1.29k|			    payload);
-  229|  1.29k|			break;
-  230|    349|		case IKEV2_PAYLOAD_CERT | IKED_E:
-  231|    349|			ret = ikev2_pld_cert(env, &pld, msg, offset, left);
-  232|    349|			break;
+  222|    628|		case IKEV2_PAYLOAD_KE | IKED_E:
+  223|    628|			ret = ikev2_pld_ke(env, &pld, msg, offset, left);
+  224|    628|			break;
+  225|  1.11k|		case IKEV2_PAYLOAD_IDi | IKED_E:
+  226|  1.32k|		case IKEV2_PAYLOAD_IDr | IKED_E:
+  227|  1.32k|			ret = ikev2_pld_id(env, &pld, msg, offset, left,
+  228|  1.32k|			    payload);
+  229|  1.32k|			break;
+  230|    367|		case IKEV2_PAYLOAD_CERT | IKED_E:
+  231|    367|			ret = ikev2_pld_cert(env, &pld, msg, offset, left);
+  232|    367|			break;
   233|      0|		case IKEV2_PAYLOAD_CERTREQ:
-  234|  6.56k|		case IKEV2_PAYLOAD_CERTREQ | IKED_E:
-  235|  6.56k|			ret = ikev2_pld_certreq(env, &pld, msg, offset, left);
-  236|  6.56k|			break;
-  237|  1.25k|		case IKEV2_PAYLOAD_AUTH | IKED_E:
-  238|  1.25k|			ret = ikev2_pld_auth(env, &pld, msg, offset, left);
-  239|  1.25k|			break;
+  234|  6.73k|		case IKEV2_PAYLOAD_CERTREQ | IKED_E:
+  235|  6.73k|			ret = ikev2_pld_certreq(env, &pld, msg, offset, left);
+  236|  6.73k|			break;
+  237|  1.32k|		case IKEV2_PAYLOAD_AUTH | IKED_E:
+  238|  1.32k|			ret = ikev2_pld_auth(env, &pld, msg, offset, left);
+  239|  1.32k|			break;
   240|      0|		case IKEV2_PAYLOAD_NONCE:
   241|    119|		case IKEV2_PAYLOAD_NONCE | IKED_E:
   242|    119|			ret = ikev2_pld_nonce(env, &pld, msg, offset, left);
   243|    119|			break;
   244|      0|		case IKEV2_PAYLOAD_NOTIFY:
-  245|  1.48k|		case IKEV2_PAYLOAD_NOTIFY | IKED_E:
-  246|  1.48k|			ret = ikev2_pld_notify(env, &pld, msg, offset, left);
-  247|  1.48k|			break;
+  245|  1.53k|		case IKEV2_PAYLOAD_NOTIFY | IKED_E:
+  246|  1.53k|			ret = ikev2_pld_notify(env, &pld, msg, offset, left);
+  247|  1.53k|			break;
   248|    809|		case IKEV2_PAYLOAD_DELETE | IKED_E:
   249|    809|			ret = ikev2_pld_delete(env, &pld, msg, offset, left);
   250|    809|			break;
   251|    761|		case IKEV2_PAYLOAD_TSi | IKED_E:
-  252|  2.28k|		case IKEV2_PAYLOAD_TSr | IKED_E:
-  253|  2.28k|			ret = ikev2_pld_tss(env, &pld, msg, offset, left);
-  254|  2.28k|			break;
+  252|  2.29k|		case IKEV2_PAYLOAD_TSr | IKED_E:
+  253|  2.29k|			ret = ikev2_pld_tss(env, &pld, msg, offset, left);
+  254|  2.29k|			break;
   255|      0|		case IKEV2_PAYLOAD_SK:
   256|      0|			ret = ikev2_pld_e(env, &pld, msg, offset, left);
   257|      0|			break;
   258|      0|		case IKEV2_PAYLOAD_SKF:
   259|      0|			ret = ikev2_pld_ef(env, &pld, msg, offset, left);
   260|      0|			break;
-  261|  4.34k|		case IKEV2_PAYLOAD_CP | IKED_E:
-  262|  4.34k|			ret = ikev2_pld_cp(env, &pld, msg, offset, left);
-  263|  4.34k|			break;
-  264|  5.69k|		case IKEV2_PAYLOAD_EAP | IKED_E:
-  265|  5.69k|			ret = ikev2_pld_eap(env, &pld, msg, offset, left);
-  266|  5.69k|			break;
-  267|  8.39k|		default:
-  268|  8.39k|			print_hex(msgbuf, offset,
-  269|  8.39k|			    betoh16(pld.pld_length) - sizeof(pld));
-  270|  8.39k|			break;
-  271|  41.1k|		}
+  261|  4.55k|		case IKEV2_PAYLOAD_CP | IKED_E:
+  262|  4.55k|			ret = ikev2_pld_cp(env, &pld, msg, offset, left);
+  263|  4.55k|			break;
+  264|  5.96k|		case IKEV2_PAYLOAD_EAP | IKED_E:
+  265|  5.96k|			ret = ikev2_pld_eap(env, &pld, msg, offset, left);
+  266|  5.96k|			break;
+  267|  8.54k|		default:
+  268|  8.54k|			print_hex(msgbuf, offset,
+  269|  8.54k|			    betoh16(pld.pld_length) - sizeof(pld));
+  270|  8.54k|			break;
+  271|  42.1k|		}
   272|       |
-  273|  41.1k|		if (ret != 0 && ikev2_msg_frompeer(msg)) {
+  273|  42.1k|		if (ret != 0 && ikev2_msg_frompeer(msg)) {
   274|      0|			(void)ikev2_send_informational(env, msg);
   275|      0|			return (-1);
   276|      0|		}
   277|       |
   278|       |		/* Encrypted payloads must appear last */
-  279|  41.1k|		if ((payload == IKEV2_PAYLOAD_SK) ||
-  280|  41.1k|		    (payload == IKEV2_PAYLOAD_SKF))
+  279|  42.1k|		if ((payload == IKEV2_PAYLOAD_SK) ||
+  280|  42.1k|		    (payload == IKEV2_PAYLOAD_SKF))
   281|      2|			return (0);
   282|       |
-  283|  41.1k|		payload = pld.pld_nextpayload;
-  284|  41.1k|		offset += left;
-  285|  41.1k|		total -= left;
-  286|  41.1k|	}
+  283|  42.1k|		payload = pld.pld_nextpayload;
+  284|  42.1k|		offset += left;
+  285|  42.1k|		total -= left;
+  286|  42.1k|	}
   287|       |
   288|    472|	return (0);
-  289|    905|}
+  289|    927|}
 ikev2_validate_sa:
-  294|  10.1k|{
-  295|  10.1k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
-  296|  10.1k|	size_t		 sap_length;
+  294|  10.2k|{
+  295|  10.2k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+  296|  10.2k|	size_t		 sap_length;
   297|       |
-  298|  10.1k|	if (left < sizeof(*sap)) {
-  299|  3.64k|		log_debug("%s: malformed payload: too short for header "
-  300|  3.64k|		    "(%zu < %zu)", __func__, left, sizeof(*sap));
-  301|  3.64k|		return (-1);
-  302|  3.64k|	}
-  303|  6.52k|	memcpy(sap, msgbuf + offset, sizeof(*sap));
+  298|  10.2k|	if (left < sizeof(*sap)) {
+  299|  3.67k|		log_debug("%s: malformed payload: too short for header "
+  300|  3.67k|		    "(%zu < %zu)", __func__, left, sizeof(*sap));
+  301|  3.67k|		return (-1);
+  302|  3.67k|	}
+  303|  6.61k|	memcpy(sap, msgbuf + offset, sizeof(*sap));
   304|       |
-  305|  6.52k|	sap_length = betoh16(sap->sap_length);
-  306|  6.52k|	if (sap_length < sizeof(*sap)) {
-  307|    729|		log_debug("%s: malformed payload: shorter than minimum header "
-  308|    729|		    "size (%zu < %zu)", __func__, sap_length, sizeof(*sap));
-  309|    729|		return (-1);
-  310|    729|	}
-  311|  5.79k|	if (left < sap_length) {
-  312|    578|		log_debug("%s: malformed payload: too long for actual payload "
-  313|    578|		    "size (%zu < %zu)", __func__, left, sap_length);
-  314|    578|		return (-1);
-  315|    578|	}
+  305|  6.61k|	sap_length = betoh16(sap->sap_length);
+  306|  6.61k|	if (sap_length < sizeof(*sap)) {
+  307|    736|		log_debug("%s: malformed payload: shorter than minimum header "
+  308|    736|		    "size (%zu < %zu)", __func__, sap_length, sizeof(*sap));
+  309|    736|		return (-1);
+  310|    736|	}
+  311|  5.87k|	if (left < sap_length) {
+  312|    588|		log_debug("%s: malformed payload: too long for actual payload "
+  313|    588|		    "size (%zu < %zu)", __func__, left, sap_length);
+  314|    588|		return (-1);
+  315|    588|	}
   316|       |	/*
   317|       |	 * If there is only one proposal, sap_length must be the
   318|       |	 * total payload size.
   319|       |	 */
-  320|  5.21k|	if (!sap->sap_more && left != sap_length) {
+  320|  5.29k|	if (!sap->sap_more && left != sap_length) {
   321|     15|		log_debug("%s: malformed payload: SA payload length mismatches "
   322|     15|		    "single proposal substructure length (%lu != %zu)",
   323|     15|		    __func__, left, sap_length);
@@ -297,38 +297,38 @@ ikev2_validate_sa:
   327|       |	 * If there are more than one proposal, there must be bytes
   328|       |	 * left in the payload.
   329|       |	 */
-  330|  5.19k|	if (sap->sap_more && left <= sap_length) {
+  330|  5.27k|	if (sap->sap_more && left <= sap_length) {
   331|     91|		log_debug("%s: malformed payload: SA payload too small for "
   332|     91|		    "further proposals (%zu <= %zu)", __func__,
   333|     91|		    left, sap_length);
   334|     91|		return (-1);
   335|     91|	}
-  336|  5.10k|	return (0);
-  337|  5.19k|}
+  336|  5.18k|	return (0);
+  337|  5.27k|}
 ikev2_pld_sa:
-  342|  7.92k|{
-  343|  7.92k|	struct ikev2_sa_proposal	 sap;
-  344|  7.92k|	struct iked_proposal		*prop = NULL;
-  345|  7.92k|	uint32_t			 spi32;
-  346|  7.92k|	uint64_t			 spi = 0, spi64;
-  347|  7.92k|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
-  348|  7.92k|	int				 r;
-  349|  7.92k|	struct iked_proposals		*props;
-  350|  7.92k|	size_t				 total;
+  342|  7.98k|{
+  343|  7.98k|	struct ikev2_sa_proposal	 sap;
+  344|  7.98k|	struct iked_proposal		*prop = NULL;
+  345|  7.98k|	uint32_t			 spi32;
+  346|  7.98k|	uint64_t			 spi = 0, spi64;
+  347|  7.98k|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
+  348|  7.98k|	int				 r;
+  349|  7.98k|	struct iked_proposals		*props;
+  350|  7.98k|	size_t				 total;
   351|       |
-  352|  10.1k|	do {
-  353|  10.1k|		if (ikev2_validate_sa(msg, offset, left, &sap))
-  354|  5.05k|			return (-1);
+  352|  10.2k|	do {
+  353|  10.2k|		if (ikev2_validate_sa(msg, offset, left, &sap))
+  354|  5.10k|			return (-1);
   355|       |
   356|       |		/* Assumed size of the first proposals, including SPI if present. */
-  357|  5.10k|		total = (betoh16(sap.sap_length) - sizeof(sap));
+  357|  5.18k|		total = (betoh16(sap.sap_length) - sizeof(sap));
   358|       |
-  359|  5.10k|		props = &msg->msg_parent->msg_proposals;
+  359|  5.18k|		props = &msg->msg_parent->msg_proposals;
   360|       |
-  361|  5.10k|		offset += sizeof(sap);
-  362|  5.10k|		left -= sizeof(sap);
+  361|  5.18k|		offset += sizeof(sap);
+  362|  5.18k|		left -= sizeof(sap);
   363|       |
-  364|  5.10k|		if (sap.sap_spisize) {
+  364|  5.18k|		if (sap.sap_spisize) {
   365|    380|			if (left < sap.sap_spisize) {
   366|     58|				log_debug("%s: malformed payload: SPI larger than "
   367|     58|				    "actual payload (%zu < %d)", __func__, left,
@@ -367,20 +367,20 @@ ikev2_pld_sa:
   400|       |		 * As we verified sanity of packet headers, this check will
   401|       |		 * be always false, but just to be sure we keep it.
   402|       |		 */
-  403|  4.91k|		if (left < total) {
+  403|  4.98k|		if (left < total) {
   404|      0|			log_debug("%s: malformed payload: too long for payload "
   405|      0|			    "(%zu < %zu)", __func__, left, total);
   406|      0|			return (-1);
   407|      0|		}
   408|       |
-  409|  4.91k|		log_debug("%s: more %d reserved %d length %d"
-  410|  4.91k|		    " proposal #%d protoid %s spisize %d xforms %d spi %s",
-  411|  4.91k|		    __func__, sap.sap_more, sap.sap_reserved,
-  412|  4.91k|		    betoh16(sap.sap_length), sap.sap_proposalnr,
-  413|  4.91k|		    print_map(sap.sap_protoid, ikev2_saproto_map), sap.sap_spisize,
-  414|  4.91k|		    sap.sap_transforms, print_spi(spi, sap.sap_spisize));
+  409|  4.98k|		log_debug("%s: more %d reserved %d length %d"
+  410|  4.98k|		    " proposal #%d protoid %s spisize %d xforms %d spi %s",
+  411|  4.98k|		    __func__, sap.sap_more, sap.sap_reserved,
+  412|  4.98k|		    betoh16(sap.sap_length), sap.sap_proposalnr,
+  413|  4.98k|		    print_map(sap.sap_protoid, ikev2_saproto_map), sap.sap_spisize,
+  414|  4.98k|		    sap.sap_transforms, print_spi(spi, sap.sap_spisize));
   415|       |
-  416|  4.91k|		if (ikev2_msg_frompeer(msg)) {
+  416|  4.98k|		if (ikev2_msg_frompeer(msg)) {
   417|      0|			if ((msg->msg_parent->msg_prop = config_add_proposal(props,
   418|      0|			    sap.sap_proposalnr, sap.sap_protoid)) == NULL) {
   419|      0|				log_debug("%s: invalid proposal", __func__);
@@ -398,72 +398,72 @@ ikev2_pld_sa:
   431|       |		/*
   432|       |		 * Parse the attached transforms
   433|       |		 */
-  434|  4.91k|		if (sap.sap_transforms) {
-  435|  2.92k|			r = ikev2_pld_xform(env, msg, offset, total);
-  436|  2.92k|			if ((r == -2) && ikev2_msg_frompeer(msg)) {
+  434|  4.98k|		if (sap.sap_transforms) {
+  435|  2.95k|			r = ikev2_pld_xform(env, msg, offset, total);
+  436|  2.95k|			if ((r == -2) && ikev2_msg_frompeer(msg)) {
   437|      0|				log_debug("%s: invalid proposal transform",
   438|      0|				    __func__);
   439|       |
   440|       |				/* cleanup and ignore proposal */
   441|      0|				config_free_proposal(props, prop);
   442|      0|				prop = msg->msg_parent->msg_prop = NULL;
-  443|  2.92k|			} else if (r != 0) {
-  444|  2.23k|				log_debug("%s: invalid proposal transforms",
-  445|  2.23k|				    __func__);
-  446|  2.23k|				return (-1);
-  447|  2.23k|			}
-  448|  2.92k|		}
+  443|  2.95k|			} else if (r != 0) {
+  444|  2.25k|				log_debug("%s: invalid proposal transforms",
+  445|  2.25k|				    __func__);
+  446|  2.25k|				return (-1);
+  447|  2.25k|			}
+  448|  2.95k|		}
   449|       |
-  450|  2.67k|		offset += total;
-  451|  2.67k|		left -= total;
-  452|  2.67k|	} while (sap.sap_more);
+  450|  2.73k|		offset += total;
+  451|  2.73k|		left -= total;
+  452|  2.73k|	} while (sap.sap_more);
   453|       |
-  454|    426|	return (0);
-  455|  7.92k|}
+  454|    438|	return (0);
+  455|  7.98k|}
 ikev2_validate_xform:
-  460|  3.73k|{
-  461|  3.73k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
-  462|  3.73k|	size_t		 xfrm_length;
+  460|  3.76k|{
+  461|  3.76k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+  462|  3.76k|	size_t		 xfrm_length;
   463|       |
-  464|  3.73k|	if (total < sizeof(*xfrm)) {
-  465|    242|		log_debug("%s: malformed payload: too short for header "
-  466|    242|		    "(%zu < %zu)", __func__, total, sizeof(*xfrm));
-  467|    242|		return (-1);
-  468|    242|	}
-  469|  3.49k|	memcpy(xfrm, msgbuf + offset, sizeof(*xfrm));
+  464|  3.76k|	if (total < sizeof(*xfrm)) {
+  465|    247|		log_debug("%s: malformed payload: too short for header "
+  466|    247|		    "(%zu < %zu)", __func__, total, sizeof(*xfrm));
+  467|    247|		return (-1);
+  468|    247|	}
+  469|  3.52k|	memcpy(xfrm, msgbuf + offset, sizeof(*xfrm));
   470|       |
-  471|  3.49k|	xfrm_length = betoh16(xfrm->xfrm_length);
-  472|  3.49k|	if (xfrm_length < sizeof(*xfrm)) {
+  471|  3.52k|	xfrm_length = betoh16(xfrm->xfrm_length);
+  472|  3.52k|	if (xfrm_length < sizeof(*xfrm)) {
   473|    325|		log_debug("%s: malformed payload: shorter than minimum header "
   474|    325|		    "size (%zu < %zu)", __func__, xfrm_length, sizeof(*xfrm));
   475|    325|		return (-1);
   476|    325|	}
-  477|  3.17k|	if (total < xfrm_length) {
+  477|  3.19k|	if (total < xfrm_length) {
   478|    166|		log_debug("%s: malformed payload: too long for payload size "
   479|    166|		    "(%zu < %zu)", __func__, total, xfrm_length);
   480|    166|		return (-1);
   481|    166|	}
   482|       |
-  483|  3.00k|	return (0);
-  484|  3.17k|}
+  483|  3.02k|	return (0);
+  484|  3.19k|}
 ikev2_pld_xform:
-  489|  3.73k|{
-  490|  3.73k|	struct ikev2_transform		 xfrm;
-  491|  3.73k|	char				 id[BUFSIZ];
-  492|  3.73k|	int				 ret = 0;
-  493|  3.73k|	int				 r;
-  494|  3.73k|	size_t				 xfrm_length;
+  489|  3.76k|{
+  490|  3.76k|	struct ikev2_transform		 xfrm;
+  491|  3.76k|	char				 id[BUFSIZ];
+  492|  3.76k|	int				 ret = 0;
+  493|  3.76k|	int				 r;
+  494|  3.76k|	size_t				 xfrm_length;
   495|       |
-  496|  3.73k|	if (ikev2_validate_xform(msg, offset, total, &xfrm))
-  497|    733|		return (-1);
+  496|  3.76k|	if (ikev2_validate_xform(msg, offset, total, &xfrm))
+  497|    738|		return (-1);
   498|       |
-  499|  3.00k|	xfrm_length = betoh16(xfrm.xfrm_length);
+  499|  3.02k|	xfrm_length = betoh16(xfrm.xfrm_length);
   500|       |
-  501|  3.00k|	switch (xfrm.xfrm_type) {
-  502|    600|	case IKEV2_XFORMTYPE_ENCR:
-  503|    600|		strlcpy(id, print_map(betoh16(xfrm.xfrm_id),
-  504|    600|		    ikev2_xformencr_map), sizeof(id));
-  505|    600|		break;
+  501|  3.02k|	switch (xfrm.xfrm_type) {
+  502|    612|	case IKEV2_XFORMTYPE_ENCR:
+  503|    612|		strlcpy(id, print_map(betoh16(xfrm.xfrm_id),
+  504|    612|		    ikev2_xformencr_map), sizeof(id));
+  505|    612|		break;
   506|  1.07k|	case IKEV2_XFORMTYPE_PRF:
   507|  1.07k|		strlcpy(id, print_map(betoh16(xfrm.xfrm_id),
   508|  1.07k|		    ikev2_xformprf_map), sizeof(id));
@@ -480,28 +480,28 @@ ikev2_pld_xform:
   519|    101|		strlcpy(id, print_map(betoh16(xfrm.xfrm_id),
   520|    101|		    ikev2_xformesn_map), sizeof(id));
   521|    101|		break;
-  522|  1.07k|	default:
-  523|  1.07k|		snprintf(id, sizeof(id), "<%d>", betoh16(xfrm.xfrm_id));
-  524|  1.07k|		break;
-  525|  3.00k|	}
+  522|  1.08k|	default:
+  523|  1.08k|		snprintf(id, sizeof(id), "<%d>", betoh16(xfrm.xfrm_id));
+  524|  1.08k|		break;
+  525|  3.02k|	}
   526|       |
-  527|  3.00k|	log_debug("%s: more %d reserved %d length %zu"
-  528|  3.00k|	    " type %s id %s",
-  529|  3.00k|	    __func__, xfrm.xfrm_more, xfrm.xfrm_reserved, xfrm_length,
-  530|  3.00k|	    print_map(xfrm.xfrm_type, ikev2_xformtype_map), id);
+  527|  3.02k|	log_debug("%s: more %d reserved %d length %zu"
+  528|  3.02k|	    " type %s id %s",
+  529|  3.02k|	    __func__, xfrm.xfrm_more, xfrm.xfrm_reserved, xfrm_length,
+  530|  3.02k|	    print_map(xfrm.xfrm_type, ikev2_xformtype_map), id);
   531|       |
   532|       |	/*
   533|       |	 * Parse transform attributes, if available
   534|       |	 */
-  535|  3.00k|	msg->msg_attrlength = 0;
-  536|  3.00k|	if (xfrm_length > sizeof(xfrm)) {
+  535|  3.02k|	msg->msg_attrlength = 0;
+  536|  3.02k|	if (xfrm_length > sizeof(xfrm)) {
   537|  1.99k|		if (ikev2_pld_attr(env, &xfrm, msg, offset + sizeof(xfrm),
   538|  1.99k|		    xfrm_length - sizeof(xfrm)) != 0) {
-  539|  1.44k|			return (-1);
-  540|  1.44k|		}
+  539|  1.45k|			return (-1);
+  540|  1.45k|		}
   541|  1.99k|	}
   542|       |
-  543|  1.56k|	if (ikev2_msg_frompeer(msg)) {
+  543|  1.57k|	if (ikev2_msg_frompeer(msg)) {
   544|      0|		r = config_add_transform(msg->msg_parent->msg_prop,
   545|      0|		    xfrm.xfrm_type, betoh16(xfrm.xfrm_id),
   546|      0|		    msg->msg_attrlength, msg->msg_attrlength);
@@ -517,106 +517,106 @@ ikev2_pld_xform:
   556|      0|	}
   557|       |
   558|       |	/* Next transform */
-  559|  1.56k|	offset += xfrm_length;
-  560|  1.56k|	total -= xfrm_length;
-  561|  1.56k|	if (xfrm.xfrm_more == IKEV2_XFORM_MORE)
+  559|  1.57k|	offset += xfrm_length;
+  560|  1.57k|	total -= xfrm_length;
+  561|  1.57k|	if (xfrm.xfrm_more == IKEV2_XFORM_MORE)
   562|    814|		ret = ikev2_pld_xform(env, msg, offset, total);
-  563|    750|	else if (total != 0) {
+  563|    765|	else if (total != 0) {
   564|       |		/* No more transforms but still some data left. */
   565|     63|		log_debug("%s: less data than specified, %zu bytes left",
   566|     63|		    __func__, total);
   567|     63|		ret = -1;
   568|     63|	}
   569|       |
-  570|  1.56k|	return (ret);
-  571|  1.56k|}
+  570|  1.57k|	return (ret);
+  571|  1.57k|}
 ikev2_validate_attr:
-  576|  3.84k|{
-  577|  3.84k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+  576|  3.87k|{
+  577|  3.87k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
   578|       |
-  579|  3.84k|	if (total < sizeof(*attr)) {
-  580|    349|		log_debug("%s: malformed payload: too short for header "
-  581|    349|		    "(%zu < %zu)", __func__, total, sizeof(*attr));
-  582|    349|		return (-1);
-  583|    349|	}
-  584|  3.49k|	memcpy(attr, msgbuf + offset, sizeof(*attr));
+  579|  3.87k|	if (total < sizeof(*attr)) {
+  580|    357|		log_debug("%s: malformed payload: too short for header "
+  581|    357|		    "(%zu < %zu)", __func__, total, sizeof(*attr));
+  582|    357|		return (-1);
+  583|    357|	}
+  584|  3.51k|	memcpy(attr, msgbuf + offset, sizeof(*attr));
   585|       |
-  586|  3.49k|	return (0);
-  587|  3.84k|}
+  586|  3.51k|	return (0);
+  587|  3.87k|}
 ikev2_pld_attr:
-  592|  3.84k|{
-  593|  3.84k|	struct ikev2_attribute		 attr;
-  594|  3.84k|	unsigned int			 type;
-  595|  3.84k|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
-  596|  3.84k|	int				 ret = 0;
-  597|  3.84k|	size_t				 attr_length;
+  592|  3.87k|{
+  593|  3.87k|	struct ikev2_attribute		 attr;
+  594|  3.87k|	unsigned int			 type;
+  595|  3.87k|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
+  596|  3.87k|	int				 ret = 0;
+  597|  3.87k|	size_t				 attr_length;
   598|       |
-  599|  3.84k|	if (ikev2_validate_attr(msg, offset, total, &attr))
-  600|    349|		return (-1);
+  599|  3.87k|	if (ikev2_validate_attr(msg, offset, total, &attr))
+  600|    357|		return (-1);
   601|       |
-  602|  3.49k|	type = betoh16(attr.attr_type) & ~IKEV2_ATTRAF_TV;
+  602|  3.51k|	type = betoh16(attr.attr_type) & ~IKEV2_ATTRAF_TV;
   603|       |
-  604|  3.49k|	log_debug("%s: attribute type %s length %d total %zu",
-  605|  3.49k|	    __func__, print_map(type, ikev2_attrtype_map),
-  606|  3.49k|	    betoh16(attr.attr_length), total);
+  604|  3.51k|	log_debug("%s: attribute type %s length %d total %zu",
+  605|  3.51k|	    __func__, print_map(type, ikev2_attrtype_map),
+  606|  3.51k|	    betoh16(attr.attr_length), total);
   607|       |
-  608|  3.49k|	if (betoh16(attr.attr_type) & IKEV2_ATTRAF_TV) {
+  608|  3.51k|	if (betoh16(attr.attr_type) & IKEV2_ATTRAF_TV) {
   609|       |		/* Type-Value attribute */
-  610|    891|		offset += sizeof(attr);
-  611|    891|		total -= sizeof(attr);
+  610|    899|		offset += sizeof(attr);
+  611|    899|		total -= sizeof(attr);
   612|       |
-  613|    891|		if (type == IKEV2_ATTRTYPE_KEY_LENGTH)
+  613|    899|		if (type == IKEV2_ATTRTYPE_KEY_LENGTH)
   614|     34|			msg->msg_attrlength = betoh16(attr.attr_length);
-  615|  2.60k|	} else {
+  615|  2.61k|	} else {
   616|       |		/* Type-Length-Value attribute */
-  617|  2.60k|		attr_length = betoh16(attr.attr_length);
-  618|  2.60k|		if (attr_length < sizeof(attr)) {
+  617|  2.61k|		attr_length = betoh16(attr.attr_length);
+  618|  2.61k|		if (attr_length < sizeof(attr)) {
   619|    575|			log_debug("%s: malformed payload: shorter than "
   620|    575|			    "minimum header size (%zu < %zu)", __func__,
   621|    575|			    attr_length, sizeof(attr));
   622|    575|			return (-1);
   623|    575|		}
-  624|  2.03k|		if (total < attr_length) {
+  624|  2.04k|		if (total < attr_length) {
   625|    518|			log_debug("%s: malformed payload: attribute larger "
   626|    518|			    "than actual payload (%zu < %zu)", __func__,
   627|    518|			    total, attr_length);
   628|    518|			return (-1);
   629|    518|		}
-  630|  1.51k|		print_hex(msgbuf, offset + sizeof(attr),
-  631|  1.51k|		    attr_length - sizeof(attr));
-  632|  1.51k|		offset += attr_length;
-  633|  1.51k|		total -= attr_length;
-  634|  1.51k|	}
+  630|  1.52k|		print_hex(msgbuf, offset + sizeof(attr),
+  631|  1.52k|		    attr_length - sizeof(attr));
+  632|  1.52k|		offset += attr_length;
+  633|  1.52k|		total -= attr_length;
+  634|  1.52k|	}
   635|       |
-  636|  2.40k|	if (total > 0) {
+  636|  2.42k|	if (total > 0) {
   637|       |		/* Next attribute */
-  638|  1.85k|		ret = ikev2_pld_attr(env, xfrm, msg, offset, total);
-  639|  1.85k|	}
+  638|  1.87k|		ret = ikev2_pld_attr(env, xfrm, msg, offset, total);
+  639|  1.87k|	}
   640|       |
-  641|  2.40k|	return (ret);
-  642|  3.49k|}
+  641|  2.42k|	return (ret);
+  642|  3.51k|}
 ikev2_validate_ke:
-  647|    623|{
-  648|    623|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+  647|    628|{
+  648|    628|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
   649|       |
-  650|    623|	if (left < sizeof(*kex)) {
-  651|    459|		log_debug("%s: malformed payload: too short for header "
-  652|    459|		    "(%zu < %zu)", __func__, left, sizeof(*kex));
-  653|    459|		return (-1);
-  654|    459|	}
+  650|    628|	if (left < sizeof(*kex)) {
+  651|    464|		log_debug("%s: malformed payload: too short for header "
+  652|    464|		    "(%zu < %zu)", __func__, left, sizeof(*kex));
+  653|    464|		return (-1);
+  654|    464|	}
   655|    164|	memcpy(kex, msgbuf + offset, sizeof(*kex));
   656|       |
   657|    164|	return (0);
-  658|    623|}
+  658|    628|}
 ikev2_pld_ke:
-  663|    623|{
-  664|    623|	struct ikev2_keyexchange	 kex;
-  665|    623|	uint8_t				*buf;
-  666|    623|	size_t				 len;
-  667|    623|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
+  663|    628|{
+  664|    628|	struct ikev2_keyexchange	 kex;
+  665|    628|	uint8_t				*buf;
+  666|    628|	size_t				 len;
+  667|    628|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
   668|       |
-  669|    623|	if (ikev2_validate_ke(msg, offset, left, &kex))
-  670|    459|		return (-1);
+  669|    628|	if (ikev2_validate_ke(msg, offset, left, &kex))
+  670|    464|		return (-1);
   671|       |
   672|    164|	log_debug("%s: dh group %s reserved %d", __func__,
   673|    164|	    print_map(betoh16(kex.kex_dhgroup), ikev2_xformdh_map),
@@ -647,36 +647,36 @@ ikev2_pld_ke:
   698|    143|	return (0);
   699|    143|}
 ikev2_validate_id:
-  704|  1.29k|{
-  705|  1.29k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+  704|  1.32k|{
+  705|  1.32k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
   706|       |
-  707|  1.29k|	if (left < sizeof(*id)) {
-  708|    787|		log_debug("%s: malformed payload: too short for header "
-  709|    787|		    "(%zu < %zu)", __func__, left, sizeof(*id));
-  710|    787|		return (-1);
-  711|    787|	}
-  712|    505|	memcpy(id, msgbuf + offset, sizeof(*id));
+  707|  1.32k|	if (left < sizeof(*id)) {
+  708|    809|		log_debug("%s: malformed payload: too short for header "
+  709|    809|		    "(%zu < %zu)", __func__, left, sizeof(*id));
+  710|    809|		return (-1);
+  711|    809|	}
+  712|    511|	memcpy(id, msgbuf + offset, sizeof(*id));
   713|       |
-  714|    505|	if (id->id_type == IKEV2_ID_NONE) {
-  715|    102|		log_debug("%s: malformed payload: invalid ID type.",
-  716|    102|		    __func__);
-  717|    102|		return (-1);
-  718|    102|	}
+  714|    511|	if (id->id_type == IKEV2_ID_NONE) {
+  715|    108|		log_debug("%s: malformed payload: invalid ID type.",
+  716|    108|		    __func__);
+  717|    108|		return (-1);
+  718|    108|	}
   719|       |
   720|    403|	return (0);
-  721|    505|}
+  721|    511|}
 ikev2_pld_id:
-  726|  1.29k|{
-  727|  1.29k|	uint8_t				*ptr;
-  728|  1.29k|	struct ikev2_id			 id;
-  729|  1.29k|	size_t				 len;
-  730|  1.29k|	struct iked_id			*idp, idb;
-  731|  1.29k|	const struct iked_sa		*sa = msg->msg_sa;
-  732|  1.29k|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
-  733|  1.29k|	char				 idstr[IKED_ID_SIZE];
+  726|  1.32k|{
+  727|  1.32k|	uint8_t				*ptr;
+  728|  1.32k|	struct ikev2_id			 id;
+  729|  1.32k|	size_t				 len;
+  730|  1.32k|	struct iked_id			*idp, idb;
+  731|  1.32k|	const struct iked_sa		*sa = msg->msg_sa;
+  732|  1.32k|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
+  733|  1.32k|	char				 idstr[IKED_ID_SIZE];
   734|       |
-  735|  1.29k|	if (ikev2_validate_id(msg, offset, left, &id))
-  736|    889|		return (-1);
+  735|  1.32k|	if (ikev2_validate_id(msg, offset, left, &id))
+  736|    917|		return (-1);
   737|       |
   738|    403|	bzero(&idb, sizeof(idb));
   739|       |
@@ -726,41 +726,41 @@ ikev2_pld_id:
   783|      0|	return (0);
   784|      0|}
 ikev2_validate_cert:
-  789|    349|{
-  790|    349|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+  789|    367|{
+  790|    367|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
   791|       |
-  792|    349|	if (left < sizeof(*cert)) {
+  792|    367|	if (left < sizeof(*cert)) {
   793|     86|		log_debug("%s: malformed payload: too short for header "
   794|     86|		    "(%zu < %zu)", __func__, left, sizeof(*cert));
   795|     86|		return (-1);
   796|     86|	}
-  797|    263|	memcpy(cert, msgbuf + offset, sizeof(*cert));
+  797|    281|	memcpy(cert, msgbuf + offset, sizeof(*cert));
   798|       |
-  799|    263|	return (0);
-  800|    349|}
+  799|    281|	return (0);
+  800|    367|}
 ikev2_pld_cert:
-  805|    349|{
-  806|    349|	struct ikev2_cert		 cert;
-  807|    349|	uint8_t				*buf;
-  808|    349|	size_t				 len;
-  809|    349|	struct iked_id			*certid;
-  810|    349|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
-  811|    349|	const struct iked_sa		*sa = msg->msg_sa;
+  805|    367|{
+  806|    367|	struct ikev2_cert		 cert;
+  807|    367|	uint8_t				*buf;
+  808|    367|	size_t				 len;
+  809|    367|	struct iked_id			*certid;
+  810|    367|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
+  811|    367|	const struct iked_sa		*sa = msg->msg_sa;
   812|       |
-  813|    349|	if (ikev2_validate_cert(msg, offset, left, &cert))
+  813|    367|	if (ikev2_validate_cert(msg, offset, left, &cert))
   814|     86|		return (-1);
-  815|    263|	offset += sizeof(cert);
+  815|    281|	offset += sizeof(cert);
   816|       |
-  817|    263|	buf = msgbuf + offset;
-  818|    263|	len = left - sizeof(cert);
+  817|    281|	buf = msgbuf + offset;
+  818|    281|	len = left - sizeof(cert);
   819|       |
-  820|    263|	log_debug("%s: type %s length %zu",
-  821|    263|	    __func__, print_map(cert.cert_type, ikev2_cert_map), len);
+  820|    281|	log_debug("%s: type %s length %zu",
+  821|    281|	    __func__, print_map(cert.cert_type, ikev2_cert_map), len);
   822|       |
-  823|    263|	print_hex(buf, 0, len);
+  823|    281|	print_hex(buf, 0, len);
   824|       |
-  825|    263|	if (!ikev2_msg_frompeer(msg))
-  826|    263|		return (0);
+  825|    281|	if (!ikev2_msg_frompeer(msg))
+  826|    281|		return (0);
   827|       |
   828|      0|	certid = &msg->msg_parent->msg_cert;
   829|      0|	if (certid->id_type) {
@@ -779,40 +779,40 @@ ikev2_pld_cert:
   842|      0|	return (0);
   843|      0|}
 ikev2_validate_certreq:
-  848|  6.56k|{
-  849|  6.56k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+  848|  6.73k|{
+  849|  6.73k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
   850|       |
-  851|  6.56k|	if (left < sizeof(*cert)) {
-  852|  1.88k|		log_debug("%s: malformed payload: too short for header "
-  853|  1.88k|		    "(%zu < %zu)", __func__, left, sizeof(*cert));
-  854|  1.88k|		return (-1);
-  855|  1.88k|	}
-  856|  4.68k|	memcpy(cert, msgbuf + offset, sizeof(*cert));
+  851|  6.73k|	if (left < sizeof(*cert)) {
+  852|  1.92k|		log_debug("%s: malformed payload: too short for header "
+  853|  1.92k|		    "(%zu < %zu)", __func__, left, sizeof(*cert));
+  854|  1.92k|		return (-1);
+  855|  1.92k|	}
+  856|  4.81k|	memcpy(cert, msgbuf + offset, sizeof(*cert));
   857|       |
-  858|  4.68k|	return (0);
-  859|  6.56k|}
+  858|  4.81k|	return (0);
+  859|  6.73k|}
 ikev2_pld_certreq:
-  864|  6.56k|{
-  865|  6.56k|	struct ikev2_cert		 cert;
-  866|  6.56k|	struct iked_certreq		*cr;
-  867|  6.56k|	uint8_t				*buf;
-  868|  6.56k|	ssize_t				 len;
-  869|  6.56k|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
+  864|  6.73k|{
+  865|  6.73k|	struct ikev2_cert		 cert;
+  866|  6.73k|	struct iked_certreq		*cr;
+  867|  6.73k|	uint8_t				*buf;
+  868|  6.73k|	ssize_t				 len;
+  869|  6.73k|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
   870|       |
-  871|  6.56k|	if (ikev2_validate_certreq(msg, offset, left, &cert))
-  872|  1.88k|		return (-1);
-  873|  4.68k|	offset += sizeof(cert);
+  871|  6.73k|	if (ikev2_validate_certreq(msg, offset, left, &cert))
+  872|  1.92k|		return (-1);
+  873|  4.81k|	offset += sizeof(cert);
   874|       |
-  875|  4.68k|	buf = msgbuf + offset;
-  876|  4.68k|	len = left - sizeof(cert);
+  875|  4.81k|	buf = msgbuf + offset;
+  876|  4.81k|	len = left - sizeof(cert);
   877|       |
-  878|  4.68k|	log_debug("%s: type %s length %zd",
-  879|  4.68k|	    __func__, print_map(cert.cert_type, ikev2_cert_map), len);
+  878|  4.81k|	log_debug("%s: type %s length %zd",
+  879|  4.81k|	    __func__, print_map(cert.cert_type, ikev2_cert_map), len);
   880|       |
-  881|  4.68k|	print_hex(buf, 0, len);
+  881|  4.81k|	print_hex(buf, 0, len);
   882|       |
-  883|  4.68k|	if (!ikev2_msg_frompeer(msg))
-  884|  4.68k|		return (0);
+  883|  4.81k|	if (!ikev2_msg_frompeer(msg))
+  884|  4.81k|		return (0);
   885|       |
   886|      0|	if (cert.cert_type == IKEV2_CERT_X509_CERT) {
   887|      0|		if (len == 0) {
@@ -841,46 +841,46 @@ ikev2_pld_certreq:
   910|      0|	return (0);
   911|      0|}
 ikev2_validate_auth:
-  916|  1.25k|{
-  917|  1.25k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+  916|  1.32k|{
+  917|  1.32k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
   918|       |
-  919|  1.25k|	if (left < sizeof(*auth)) {
-  920|    576|		log_debug("%s: malformed payload: too short for header "
-  921|    576|		    "(%zu < %zu)", __func__, left, sizeof(*auth));
-  922|    576|		return (-1);
-  923|    576|	}
-  924|    680|	memcpy(auth, msgbuf + offset, sizeof(*auth));
+  919|  1.32k|	if (left < sizeof(*auth)) {
+  920|    584|		log_debug("%s: malformed payload: too short for header "
+  921|    584|		    "(%zu < %zu)", __func__, left, sizeof(*auth));
+  922|    584|		return (-1);
+  923|    584|	}
+  924|    736|	memcpy(auth, msgbuf + offset, sizeof(*auth));
   925|       |
-  926|    680|	if (auth->auth_method == 0) {
-  927|    186|		log_info("%s: malformed payload: invalid auth method",
-  928|    186|		    __func__);
-  929|    186|		return (-1);
-  930|    186|	}
+  926|    736|	if (auth->auth_method == 0) {
+  927|    222|		log_info("%s: malformed payload: invalid auth method",
+  928|    222|		    __func__);
+  929|    222|		return (-1);
+  930|    222|	}
   931|       |
-  932|    494|	return (0);
-  933|    680|}
+  932|    514|	return (0);
+  933|    736|}
 ikev2_pld_auth:
-  938|  1.25k|{
-  939|  1.25k|	struct ikev2_auth		 auth;
-  940|  1.25k|	struct iked_id			*idp;
-  941|  1.25k|	uint8_t				*buf;
-  942|  1.25k|	size_t				 len;
-  943|  1.25k|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
+  938|  1.32k|{
+  939|  1.32k|	struct ikev2_auth		 auth;
+  940|  1.32k|	struct iked_id			*idp;
+  941|  1.32k|	uint8_t				*buf;
+  942|  1.32k|	size_t				 len;
+  943|  1.32k|	uint8_t				*msgbuf = ibuf_data(msg->msg_data);
   944|       |
-  945|  1.25k|	if (ikev2_validate_auth(msg, offset, left, &auth))
-  946|    762|		return (-1);
-  947|    494|	offset += sizeof(auth);
+  945|  1.32k|	if (ikev2_validate_auth(msg, offset, left, &auth))
+  946|    806|		return (-1);
+  947|    514|	offset += sizeof(auth);
   948|       |
-  949|    494|	buf = msgbuf + offset;
-  950|    494|	len = left - sizeof(auth);
+  949|    514|	buf = msgbuf + offset;
+  950|    514|	len = left - sizeof(auth);
   951|       |
-  952|    494|	log_debug("%s: method %s length %zu",
-  953|    494|	    __func__, print_map(auth.auth_method, ikev2_auth_map), len);
+  952|    514|	log_debug("%s: method %s length %zu",
+  953|    514|	    __func__, print_map(auth.auth_method, ikev2_auth_map), len);
   954|       |
-  955|    494|	print_hex(buf, 0, len);
+  955|    514|	print_hex(buf, 0, len);
   956|       |
-  957|    494|	if (!ikev2_msg_frompeer(msg))
-  958|    494|		return (0);
+  957|    514|	if (!ikev2_msg_frompeer(msg))
+  958|    514|		return (0);
   959|       |
   960|      0|	idp = &msg->msg_parent->msg_auth;
   961|      0|	if (idp->id_type) {
@@ -927,46 +927,46 @@ ikev2_pld_nonce:
  1005|     37|	return (0);
  1006|     37|}
 ikev2_validate_notify:
- 1011|  1.48k|{
- 1012|  1.48k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+ 1011|  1.53k|{
+ 1012|  1.53k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
  1013|       |
- 1014|  1.48k|	if (left < sizeof(*n)) {
- 1015|    978|		log_debug("%s: malformed payload: too short for header "
- 1016|    978|		    "(%zu < %zu)", __func__, left, sizeof(*n));
- 1017|    978|		return (-1);
- 1018|    978|	}
- 1019|    511|	memcpy(n, msgbuf + offset, sizeof(*n));
+ 1014|  1.53k|	if (left < sizeof(*n)) {
+ 1015|  1.00k|		log_debug("%s: malformed payload: too short for header "
+ 1016|  1.00k|		    "(%zu < %zu)", __func__, left, sizeof(*n));
+ 1017|  1.00k|		return (-1);
+ 1018|  1.00k|	}
+ 1019|    529|	memcpy(n, msgbuf + offset, sizeof(*n));
  1020|       |
- 1021|    511|	return (0);
- 1022|  1.48k|}
+ 1021|    529|	return (0);
+ 1022|  1.53k|}
 ikev2_pld_notify:
- 1027|  1.48k|{
- 1028|  1.48k|	struct ikev2_notify	 n;
- 1029|  1.48k|	const struct iked_sa	*sa = msg->msg_sa;
- 1030|  1.48k|	uint8_t			*buf, md[SHA_DIGEST_LENGTH];
- 1031|  1.48k|	uint32_t		 spi32;
- 1032|  1.48k|	uint64_t		 spi64;
- 1033|  1.48k|	struct iked_spi		*rekey;
- 1034|  1.48k|	uint16_t		 type;
- 1035|  1.48k|	uint16_t		 signature_hash;
+ 1027|  1.53k|{
+ 1028|  1.53k|	struct ikev2_notify	 n;
+ 1029|  1.53k|	const struct iked_sa	*sa = msg->msg_sa;
+ 1030|  1.53k|	uint8_t			*buf, md[SHA_DIGEST_LENGTH];
+ 1031|  1.53k|	uint32_t		 spi32;
+ 1032|  1.53k|	uint64_t		 spi64;
+ 1033|  1.53k|	struct iked_spi		*rekey;
+ 1034|  1.53k|	uint16_t		 type;
+ 1035|  1.53k|	uint16_t		 signature_hash;
  1036|       |
- 1037|  1.48k|	if (ikev2_validate_notify(msg, offset, left, &n))
- 1038|    978|		return (-1);
- 1039|    511|	type = betoh16(n.n_type);
+ 1037|  1.53k|	if (ikev2_validate_notify(msg, offset, left, &n))
+ 1038|  1.00k|		return (-1);
+ 1039|    529|	type = betoh16(n.n_type);
  1040|       |
- 1041|    511|	log_debug("%s: protoid %s spisize %d type %s",
- 1042|    511|	    __func__,
- 1043|    511|	    print_map(n.n_protoid, ikev2_saproto_map), n.n_spisize,
- 1044|    511|	    print_map(type, ikev2_n_map));
+ 1041|    529|	log_debug("%s: protoid %s spisize %d type %s",
+ 1042|    529|	    __func__,
+ 1043|    529|	    print_map(n.n_protoid, ikev2_saproto_map), n.n_spisize,
+ 1044|    529|	    print_map(type, ikev2_n_map));
  1045|       |
- 1046|    511|	left -= sizeof(n);
- 1047|    511|	if ((buf = ibuf_seek(msg->msg_data, offset + sizeof(n), left)) == NULL)
+ 1046|    529|	left -= sizeof(n);
+ 1047|    529|	if ((buf = ibuf_seek(msg->msg_data, offset + sizeof(n), left)) == NULL)
  1048|      0|		return (-1);
  1049|       |
- 1050|    511|	print_hex(buf, 0, left);
+ 1050|    529|	print_hex(buf, 0, left);
  1051|       |
- 1052|    511|	if (!ikev2_msg_frompeer(msg))
- 1053|    511|		return (0);
+ 1052|    529|	if (!ikev2_msg_frompeer(msg))
+ 1053|    529|		return (0);
  1054|       |
  1055|      0|	switch (type) {
  1056|      0|	case IKEV2_N_NAT_DETECTION_SOURCE_IP:
@@ -1340,36 +1340,36 @@ ikev2_pld_delete:
  1430|      1|	return (0);
  1431|     11|}
 ikev2_validate_tss:
- 1436|  2.28k|{
- 1437|  2.28k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+ 1436|  2.29k|{
+ 1437|  2.29k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
  1438|       |
- 1439|  2.28k|	if (left < sizeof(*tsp)) {
- 1440|    306|		log_debug("%s: malformed payload: too short for header "
- 1441|    306|		    "(%zu < %zu)", __func__, left, sizeof(*tsp));
- 1442|    306|		return (-1);
- 1443|    306|	}
- 1444|  1.98k|	memcpy(tsp, msgbuf + offset, sizeof(*tsp));
+ 1439|  2.29k|	if (left < sizeof(*tsp)) {
+ 1440|    307|		log_debug("%s: malformed payload: too short for header "
+ 1441|    307|		    "(%zu < %zu)", __func__, left, sizeof(*tsp));
+ 1442|    307|		return (-1);
+ 1443|    307|	}
+ 1444|  1.99k|	memcpy(tsp, msgbuf + offset, sizeof(*tsp));
  1445|       |
- 1446|  1.98k|	return (0);
- 1447|  2.28k|}
+ 1446|  1.99k|	return (0);
+ 1447|  2.29k|}
 ikev2_pld_tss:
- 1452|  2.28k|{
- 1453|  2.28k|	struct ikev2_tsp		 tsp;
- 1454|  2.28k|	struct ikev2_ts			 ts;
- 1455|  2.28k|	size_t				 ts_len, i;
+ 1452|  2.29k|{
+ 1453|  2.29k|	struct ikev2_tsp		 tsp;
+ 1454|  2.29k|	struct ikev2_ts			 ts;
+ 1455|  2.29k|	size_t				 ts_len, i;
  1456|       |
- 1457|  2.28k|	if (ikev2_validate_tss(msg, offset, left, &tsp))
- 1458|    306|		return (-1);
+ 1457|  2.29k|	if (ikev2_validate_tss(msg, offset, left, &tsp))
+ 1458|    307|		return (-1);
  1459|       |
- 1460|  1.98k|	offset += sizeof(tsp);
- 1461|  1.98k|	left -= sizeof(tsp);
+ 1460|  1.99k|	offset += sizeof(tsp);
+ 1461|  1.99k|	left -= sizeof(tsp);
  1462|       |
- 1463|  1.98k|	log_debug("%s: count %d length %zu", __func__,
- 1464|  1.98k|	    tsp.tsp_count, left);
+ 1463|  1.99k|	log_debug("%s: count %d length %zu", __func__,
+ 1464|  1.99k|	    tsp.tsp_count, left);
  1465|       |
- 1466|  2.55k|	for (i = 0; i < tsp.tsp_count; i++) {
- 1467|  2.51k|		if (ikev2_validate_ts(msg, offset, left, &ts))
- 1468|  1.86k|			return (-1);
+ 1466|  2.56k|	for (i = 0; i < tsp.tsp_count; i++) {
+ 1467|  2.52k|		if (ikev2_validate_ts(msg, offset, left, &ts))
+ 1468|  1.87k|			return (-1);
  1469|       |
  1470|    657|		log_debug("%s: type %s protoid %u length %d "
  1471|    657|		    "startport %u endport %u", __func__,
@@ -1390,17 +1390,17 @@ ikev2_pld_tss:
  1486|    570|	}
  1487|       |
  1488|     34|	return (0);
- 1489|  1.98k|}
+ 1489|  1.99k|}
 ikev2_validate_ts:
- 1494|  2.51k|{
- 1495|  2.51k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
- 1496|  2.51k|	size_t		 ts_length;
+ 1494|  2.52k|{
+ 1495|  2.52k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+ 1496|  2.52k|	size_t		 ts_length;
  1497|       |
- 1498|  2.51k|	if (left < sizeof(*ts)) {
- 1499|  1.78k|		log_debug("%s: malformed payload: too short for header "
- 1500|  1.78k|		    "(%zu < %zu)", __func__, left, sizeof(*ts));
- 1501|  1.78k|		return (-1);
- 1502|  1.78k|	}
+ 1498|  2.52k|	if (left < sizeof(*ts)) {
+ 1499|  1.79k|		log_debug("%s: malformed payload: too short for header "
+ 1500|  1.79k|		    "(%zu < %zu)", __func__, left, sizeof(*ts));
+ 1501|  1.79k|		return (-1);
+ 1502|  1.79k|	}
  1503|    738|	memcpy(ts, msgbuf + offset, sizeof(*ts));
  1504|       |
  1505|    738|	ts_length = betoh16(ts->ts_length);
@@ -1493,41 +1493,41 @@ ikev2_pld_ts:
  1595|     66|	return (0);
  1596|    125|}
 ikev2_validate_cp:
- 1837|  4.34k|{
- 1838|  4.34k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+ 1837|  4.55k|{
+ 1838|  4.55k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
  1839|       |
- 1840|  4.34k|	if (left < sizeof(*cp)) {
- 1841|    717|		log_debug("%s: malformed payload: too short for header "
- 1842|    717|		    "(%zu < %zu)", __func__, left, sizeof(*cp));
- 1843|    717|		return (-1);
- 1844|    717|	}
- 1845|  3.62k|	memcpy(cp, msgbuf + offset, sizeof(*cp));
+ 1840|  4.55k|	if (left < sizeof(*cp)) {
+ 1841|    815|		log_debug("%s: malformed payload: too short for header "
+ 1842|    815|		    "(%zu < %zu)", __func__, left, sizeof(*cp));
+ 1843|    815|		return (-1);
+ 1844|    815|	}
+ 1845|  3.73k|	memcpy(cp, msgbuf + offset, sizeof(*cp));
  1846|       |
- 1847|  3.62k|	return (0);
- 1848|  4.34k|}
+ 1847|  3.73k|	return (0);
+ 1848|  4.55k|}
 ikev2_pld_cp:
- 1853|  4.34k|{
- 1854|  4.34k|	struct ikev2_cp		 cp;
- 1855|  4.34k|	struct ikev2_cfg	*cfg;
- 1856|  4.34k|	struct iked_addr	*addr;
- 1857|  4.34k|	struct sockaddr_in	*in4;
- 1858|  4.34k|	struct sockaddr_in6	*in6;
- 1859|  4.34k|	uint8_t			*ptr;
- 1860|  4.34k|	size_t			 len;
- 1861|  4.34k|	uint8_t			 buf[128];
- 1862|  4.34k|	int			 cfg_type;
+ 1853|  4.55k|{
+ 1854|  4.55k|	struct ikev2_cp		 cp;
+ 1855|  4.55k|	struct ikev2_cfg	*cfg;
+ 1856|  4.55k|	struct iked_addr	*addr;
+ 1857|  4.55k|	struct sockaddr_in	*in4;
+ 1858|  4.55k|	struct sockaddr_in6	*in6;
+ 1859|  4.55k|	uint8_t			*ptr;
+ 1860|  4.55k|	size_t			 len;
+ 1861|  4.55k|	uint8_t			 buf[128];
+ 1862|  4.55k|	int			 cfg_type;
  1863|       |
- 1864|  4.34k|	if (ikev2_validate_cp(msg, offset, left, &cp))
- 1865|    717|		return (-1);
+ 1864|  4.55k|	if (ikev2_validate_cp(msg, offset, left, &cp))
+ 1865|    815|		return (-1);
  1866|       |
- 1867|  3.62k|	ptr = ibuf_data(msg->msg_data) + offset + sizeof(cp);
- 1868|  3.62k|	len = left - sizeof(cp);
+ 1867|  3.73k|	ptr = ibuf_data(msg->msg_data) + offset + sizeof(cp);
+ 1868|  3.73k|	len = left - sizeof(cp);
  1869|       |
- 1870|  3.62k|	log_debug("%s: type %s length %zu",
- 1871|  3.62k|	    __func__, print_map(cp.cp_type, ikev2_cp_map), len);
- 1872|  3.62k|	print_hex(ptr, 0, len);
+ 1870|  3.73k|	log_debug("%s: type %s length %zu",
+ 1871|  3.73k|	    __func__, print_map(cp.cp_type, ikev2_cp_map), len);
+ 1872|  3.73k|	print_hex(ptr, 0, len);
  1873|       |
- 1874|  4.62k|	while (len > 0) {
+ 1874|  4.73k|	while (len > 0) {
  1875|  1.45k|		if (len < sizeof(*cfg)) {
  1876|    343|			log_debug("%s: malformed payload: too short for cfg "
  1877|    343|			    "(%zu < %zu)", __func__, len, sizeof(*cfg));
@@ -1667,117 +1667,117 @@ ikev2_pld_cp:
  2011|  1.00k|		len -= betoh16(cfg->cfg_length);
  2012|  1.00k|	}
  2013|       |
- 2014|  3.16k|	if (!ikev2_msg_frompeer(msg))
- 2015|  3.16k|		return (0);
+ 2014|  3.27k|	if (!ikev2_msg_frompeer(msg))
+ 2015|  3.27k|		return (0);
  2016|       |
  2017|      0|	msg->msg_parent->msg_cp = cp.cp_type;
  2018|       |
  2019|      0|	return (0);
- 2020|  3.16k|}
+ 2020|  3.27k|}
 ikev2_validate_eap:
- 2025|  5.69k|{
- 2026|  5.69k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
+ 2025|  5.96k|{
+ 2026|  5.96k|	uint8_t		*msgbuf = ibuf_data(msg->msg_data);
  2027|       |
- 2028|  5.69k|	if (left < sizeof(*hdr)) {
- 2029|  1.98k|		log_debug("%s: malformed payload: too short for header "
- 2030|  1.98k|		    "(%zu < %zu)", __func__, left, sizeof(*hdr));
- 2031|  1.98k|		return (-1);
- 2032|  1.98k|	}
- 2033|  3.70k|	memcpy(hdr, msgbuf + offset, sizeof(*hdr));
+ 2028|  5.96k|	if (left < sizeof(*hdr)) {
+ 2029|  2.09k|		log_debug("%s: malformed payload: too short for header "
+ 2030|  2.09k|		    "(%zu < %zu)", __func__, left, sizeof(*hdr));
+ 2031|  2.09k|		return (-1);
+ 2032|  2.09k|	}
+ 2033|  3.87k|	memcpy(hdr, msgbuf + offset, sizeof(*hdr));
  2034|       |
- 2035|  3.70k|	return (0);
- 2036|  5.69k|}
+ 2035|  3.87k|	return (0);
+ 2036|  5.96k|}
 ikev2_pld_eap:
- 2041|  5.69k|{
- 2042|  5.69k|	struct eap_header		 hdr;
- 2043|  5.69k|	struct eap_message		*eap = NULL;
- 2044|  5.69k|	const struct iked_sa		*sa = msg->msg_sa;
- 2045|  5.69k|	size_t				 len;
+ 2041|  5.96k|{
+ 2042|  5.96k|	struct eap_header		 hdr;
+ 2043|  5.96k|	struct eap_message		*eap = NULL;
+ 2044|  5.96k|	const struct iked_sa		*sa = msg->msg_sa;
+ 2045|  5.96k|	size_t				 len;
  2046|       |
- 2047|  5.69k|	if (ikev2_validate_eap(msg, offset, left, &hdr))
- 2048|  1.98k|		return (-1);
- 2049|  3.70k|	len = betoh16(hdr.eap_length);
+ 2047|  5.96k|	if (ikev2_validate_eap(msg, offset, left, &hdr))
+ 2048|  2.09k|		return (-1);
+ 2049|  3.87k|	len = betoh16(hdr.eap_length);
  2050|       |
- 2051|  3.70k|	if (len < sizeof(*eap)) {
- 2052|  1.46k|		log_info("%s: %s id %d length %d", SPI_SA(sa, __func__),
- 2053|  1.46k|		    print_map(hdr.eap_code, eap_code_map),
- 2054|  1.46k|		    hdr.eap_id, betoh16(hdr.eap_length));
- 2055|  2.24k|	} else {
+ 2051|  3.87k|	if (len < sizeof(*eap)) {
+ 2052|  1.54k|		log_info("%s: %s id %d length %d", SPI_SA(sa, __func__),
+ 2053|  1.54k|		    print_map(hdr.eap_code, eap_code_map),
+ 2054|  1.54k|		    hdr.eap_id, betoh16(hdr.eap_length));
+ 2055|  2.32k|	} else {
  2056|       |		/* Now try to get the indicated length */
- 2057|  2.24k|		if ((eap = ibuf_seek(msg->msg_data, offset, len)) == NULL) {
- 2058|    880|			log_debug("%s: invalid EAP length", __func__);
- 2059|    880|			return (-1);
- 2060|    880|		}
+ 2057|  2.32k|		if ((eap = ibuf_seek(msg->msg_data, offset, len)) == NULL) {
+ 2058|    918|			log_debug("%s: invalid EAP length", __func__);
+ 2059|    918|			return (-1);
+ 2060|    918|		}
  2061|       |
- 2062|  1.36k|		log_info("%s: %s id %d length %d EAP-%s", SPI_SA(sa, __func__),
- 2063|  1.36k|		    print_map(eap->eap_code, eap_code_map),
- 2064|  1.36k|		    eap->eap_id, betoh16(eap->eap_length),
- 2065|  1.36k|		    print_map(eap->eap_type, eap_type_map));
+ 2062|  1.41k|		log_info("%s: %s id %d length %d EAP-%s", SPI_SA(sa, __func__),
+ 2063|  1.41k|		    print_map(eap->eap_code, eap_code_map),
+ 2064|  1.41k|		    eap->eap_id, betoh16(eap->eap_length),
+ 2065|  1.41k|		    print_map(eap->eap_type, eap_type_map));
  2066|       |
- 2067|  1.36k|		if (eap_parse(env, sa, msg, eap, msg->msg_response) == -1)
+ 2067|  1.41k|		if (eap_parse(env, sa, msg, eap, msg->msg_response) == -1)
  2068|      0|			return (-1);
- 2069|  1.36k|		msg->msg_parent->msg_eap.eam_found = 1;
- 2070|  1.36k|	}
+ 2069|  1.41k|		msg->msg_parent->msg_eap.eam_found = 1;
+ 2070|  1.41k|	}
  2071|       |
- 2072|  2.82k|	return (0);
- 2073|  3.70k|}
+ 2072|  2.95k|	return (0);
+ 2073|  3.87k|}
 
 ibuf_zero:
-   47|  2.63k|{
-   48|  2.63k|	explicit_bzero(buf->buf, buf->wpos);
-   49|  2.63k|}
+   47|  2.67k|{
+   48|  2.67k|	explicit_bzero(buf->buf, buf->wpos);
+   49|  2.67k|}
 ibuf_new:
-   53|  1.31k|{
-   54|  1.31k|	struct ibuf	*buf;
+   53|  1.33k|{
+   54|  1.33k|	struct ibuf	*buf;
    55|       |
-   56|  1.31k|	if ((buf = ibuf_dynamic(len,
-   57|  1.31k|	    IKED_MSGBUF_MAX)) == NULL)
+   56|  1.33k|	if ((buf = ibuf_dynamic(len,
+   57|  1.33k|	    IKED_MSGBUF_MAX)) == NULL)
    58|      0|		return (NULL);
    59|       |
-   60|  1.31k|	ibuf_zero(buf);
+   60|  1.33k|	ibuf_zero(buf);
    61|       |
-   62|  1.31k|	if (len == 0)
+   62|  1.33k|	if (len == 0)
    63|      0|		return (buf);
    64|       |
-   65|  1.31k|	if (data == NULL) {
+   65|  1.33k|	if (data == NULL) {
    66|      0|		if (ibuf_advance(buf, len) == NULL) {
    67|      0|			ibuf_free(buf);
    68|      0|			return (NULL);
    69|      0|		}
-   70|  1.31k|	} else {
-   71|  1.31k|		if (ibuf_add(buf, data, len) != 0) {
+   70|  1.33k|	} else {
+   71|  1.33k|		if (ibuf_add(buf, data, len) != 0) {
    72|      0|			ibuf_free(buf);
    73|      0|			return (NULL);
    74|      0|		}
-   75|  1.31k|	}
+   75|  1.33k|	}
    76|       |
-   77|  1.31k|	return (buf);
-   78|  1.31k|}
+   77|  1.33k|	return (buf);
+   78|  1.33k|}
 ibuf_release:
-  106|  9.51k|{
-  107|  9.51k|	if (buf == NULL)
-  108|  8.19k|		return;
-  109|  1.31k|	if (buf->buf != NULL) {
-  110|  1.31k|		ibuf_zero(buf);
-  111|  1.31k|		free(buf->buf);
-  112|  1.31k|	}
-  113|  1.31k|	free(buf);
-  114|  1.31k|}
+  106|  9.73k|{
+  107|  9.73k|	if (buf == NULL)
+  108|  8.39k|		return;
+  109|  1.33k|	if (buf->buf != NULL) {
+  110|  1.33k|		ibuf_zero(buf);
+  111|  1.33k|		free(buf->buf);
+  112|  1.33k|	}
+  113|  1.33k|	free(buf);
+  114|  1.33k|}
 ibuf_data:
-  126|   119k|{
-  127|   119k|	return (ibuf_seek(buf, 0, 0));
-  128|   119k|}
+  126|   122k|{
+  127|   122k|	return (ibuf_seek(buf, 0, 0));
+  128|   122k|}
 
 log_getverbose:
-   82|  20.6k|{
-   83|  20.6k|	return (verbose);
-   84|  20.6k|}
+   82|  21.1k|{
+   83|  21.1k|	return (verbose);
+   84|  21.1k|}
 vlog:
-   98|  3.03k|{
-   99|  3.03k|	char	*nfmt;
-  100|  3.03k|	int	 saved_errno = errno;
+   98|  3.19k|{
+   99|  3.19k|	char	*nfmt;
+  100|  3.19k|	int	 saved_errno = errno;
   101|       |
-  102|  3.03k|	if (debug) {
+  102|  3.19k|	if (debug) {
   103|       |		/* best effort in out of mem situations */
   104|      0|		if (asprintf(&nfmt, "%s\n", fmt) == -1) {
   105|      0|			vfprintf(stderr, fmt, ap);
@@ -1788,28 +1788,28 @@ vlog:
   110|      0|		}
   111|      0|		fflush(stderr);
   112|      0|	} else
-  113|  3.03k|		vsyslog(pri, fmt, ap);
+  113|  3.19k|		vsyslog(pri, fmt, ap);
   114|       |
-  115|  3.03k|	errno = saved_errno;
-  116|  3.03k|}
+  115|  3.19k|	errno = saved_errno;
+  116|  3.19k|}
 log_info:
-  158|  3.03k|{
-  159|  3.03k|	va_list	 ap;
+  158|  3.19k|{
+  159|  3.19k|	va_list	 ap;
   160|       |
-  161|  3.03k|	va_start(ap, emsg);
-  162|  3.03k|	vlog(LOG_INFO, emsg, ap);
-  163|  3.03k|	va_end(ap);
-  164|  3.03k|}
+  161|  3.19k|	va_start(ap, emsg);
+  162|  3.19k|	vlog(LOG_INFO, emsg, ap);
+  163|  3.19k|	va_end(ap);
+  164|  3.19k|}
 log_debug:
-  168|  90.8k|{
-  169|  90.8k|	va_list	 ap;
+  168|  92.7k|{
+  169|  92.7k|	va_list	 ap;
   170|       |
-  171|  90.8k|	if (verbose > 1) {
+  171|  92.7k|	if (verbose > 1) {
   172|      0|		va_start(ap, emsg);
   173|      0|		vlog(LOG_DEBUG, emsg, ap);
   174|      0|		va_end(ap);
   175|      0|	}
-  176|  90.8k|}
+  176|  92.7k|}
 
 socket_getport:
    71|    250|{
@@ -1826,62 +1826,62 @@ socket_getport:
    82|      0|	return (0);
    83|    250|}
 print_spi:
-  499|  6.73k|{
-  500|  6.73k|	static char		 buf[IKED_CYCLE_BUFFERS][32];
-  501|  6.73k|	static int		 i = 0;
-  502|  6.73k|	char			*ptr;
+  499|  6.85k|{
+  500|  6.85k|	static char		 buf[IKED_CYCLE_BUFFERS][32];
+  501|  6.85k|	static int		 i = 0;
+  502|  6.85k|	char			*ptr;
   503|       |
-  504|  6.73k|	ptr = buf[i];
+  504|  6.85k|	ptr = buf[i];
   505|       |
-  506|  6.73k|	switch (size) {
+  506|  6.85k|	switch (size) {
   507|      0|	case 2:
   508|      0|		snprintf(ptr, 32, "0x%04x", (uint16_t)spi);
   509|      0|		break;
   510|     77|	case 4:
   511|     77|		snprintf(ptr, 32, "0x%08x", (uint32_t)spi);
   512|     77|		break;
-  513|  1.92k|	case 8:
-  514|  1.92k|		snprintf(ptr, 32, "0x%016llx", (long long unsigned)spi);
-  515|  1.92k|		break;
-  516|  4.72k|	default:
-  517|  4.72k|		snprintf(ptr, 32, "%llu", (long long unsigned)spi);
-  518|  4.72k|		break;
-  519|  6.73k|	}
+  513|  1.97k|	case 8:
+  514|  1.97k|		snprintf(ptr, 32, "0x%016llx", (long long unsigned)spi);
+  515|  1.97k|		break;
+  516|  4.80k|	default:
+  517|  4.80k|		snprintf(ptr, 32, "%llu", (long long unsigned)spi);
+  518|  4.80k|		break;
+  519|  6.85k|	}
   520|       |
-  521|  6.73k|	if (++i >= IKED_CYCLE_BUFFERS)
-  522|    841|		i = 0;
+  521|  6.85k|	if (++i >= IKED_CYCLE_BUFFERS)
+  522|    856|		i = 0;
   523|       |
-  524|  6.73k|	return (ptr);
-  525|  6.73k|}
+  524|  6.85k|	return (ptr);
+  525|  6.85k|}
 print_map:
-  529|   114k|{
-  530|   114k|	unsigned int		 i;
-  531|   114k|	static char		 buf[IKED_CYCLE_BUFFERS][32];
-  532|   114k|	static int		 idx = 0;
-  533|   114k|	const char		*name = NULL;
+  529|   117k|{
+  530|   117k|	unsigned int		 i;
+  531|   117k|	static char		 buf[IKED_CYCLE_BUFFERS][32];
+  532|   117k|	static int		 idx = 0;
+  533|   117k|	const char		*name = NULL;
   534|       |
-  535|   114k|	if (idx >= IKED_CYCLE_BUFFERS)
-  536|  14.2k|		idx = 0;
-  537|   114k|	bzero(buf[idx], sizeof(buf[idx]));
+  535|   117k|	if (idx >= IKED_CYCLE_BUFFERS)
+  536|  14.6k|		idx = 0;
+  537|   117k|	bzero(buf[idx], sizeof(buf[idx]));
   538|       |
-  539|  2.02M|	for (i = 0; map[i].cm_name != NULL; i++) {
-  540|  1.91M|		if (map[i].cm_type == type)
-  541|  83.3k|			name = map[i].cm_name;
-  542|  1.91M|	}
+  539|  2.07M|	for (i = 0; map[i].cm_name != NULL; i++) {
+  540|  1.96M|		if (map[i].cm_type == type)
+  541|  85.5k|			name = map[i].cm_name;
+  542|  1.96M|	}
   543|       |
-  544|   114k|	if (name == NULL)
-  545|  30.9k|		snprintf(buf[idx], sizeof(buf[idx]), "<UNKNOWN:%u>", type);
-  546|  83.3k|	else
-  547|  83.3k|		strlcpy(buf[idx], name, sizeof(buf[idx]));
+  544|   117k|	if (name == NULL)
+  545|  31.4k|		snprintf(buf[idx], sizeof(buf[idx]), "<UNKNOWN:%u>", type);
+  546|  85.5k|	else
+  547|  85.5k|		strlcpy(buf[idx], name, sizeof(buf[idx]));
   548|       |
-  549|   114k|	return (buf[idx++]);
-  550|   114k|}
+  549|   117k|	return (buf[idx++]);
+  550|   117k|}
 print_hex:
-  561|  20.6k|{
-  562|  20.6k|	unsigned int	 i;
+  561|  21.1k|{
+  562|  21.1k|	unsigned int	 i;
   563|       |
-  564|  20.6k|	if (log_getverbose() < 3 || !length)
-  565|  20.6k|		return;
+  564|  21.1k|	if (log_getverbose() < 3 || !length)
+  565|  21.1k|		return;
   566|       |
   567|      0|	for (i = 0; i < length; i++) {
   568|      0|		if (i && (i % 4) == 0) {
@@ -1928,138 +1928,138 @@ print_host:
   761|    250|}
 
 eap_parse:
-   58|  1.36k|{
-   59|  1.36k|	return (0);
-   60|  1.36k|}
+   58|  1.41k|{
+   59|  1.41k|	return (0);
+   60|  1.41k|}
 ikev2_msg_frompeer:
-   64|  36.1k|{
-   65|  36.1k|	return (0);
-   66|  36.1k|}
+   64|  37.0k|{
+   65|  37.0k|	return (0);
+   66|  37.0k|}
 ikev2_ikesa_info:
-   82|  2.82k|{
-   83|  2.82k|	return "";
-   84|  2.82k|}
+   82|  2.95k|{
+   83|  2.95k|	return "";
+   84|  2.95k|}
 ikev2_print_id:
   159|    403|{
   160|    403|	return (0);
   161|    403|}
 ikev2_msg_cleanup:
-  230|    911|{
-  231|    911|	struct iked_certreq *cr;
-  232|    911|	struct iked_proposal *prop, *proptmp;
+  230|    933|{
+  231|    933|	struct iked_certreq *cr;
+  232|    933|	struct iked_proposal *prop, *proptmp;
   233|       |
-  234|    911|	if (msg == msg->msg_parent) {
-  235|    911|		ibuf_release(msg->msg_nonce);
-  236|    911|		ibuf_release(msg->msg_ke);
-  237|    911|		ibuf_release(msg->msg_auth.id_buf);
-  238|    911|		ibuf_release(msg->msg_peerid.id_buf);
-  239|    911|		ibuf_release(msg->msg_localid.id_buf);
-  240|    911|		ibuf_release(msg->msg_cert.id_buf);
-  241|    911|		ibuf_release(msg->msg_cookie);
-  242|    911|		ibuf_release(msg->msg_cookie2);
-  243|    911|		ibuf_release(msg->msg_del_buf);
-  244|    911|		free(msg->msg_eap.eam_user);
-  245|    911|		free(msg->msg_cp_addr);
-  246|    911|		free(msg->msg_cp_addr6);
+  234|    933|	if (msg == msg->msg_parent) {
+  235|    933|		ibuf_release(msg->msg_nonce);
+  236|    933|		ibuf_release(msg->msg_ke);
+  237|    933|		ibuf_release(msg->msg_auth.id_buf);
+  238|    933|		ibuf_release(msg->msg_peerid.id_buf);
+  239|    933|		ibuf_release(msg->msg_localid.id_buf);
+  240|    933|		ibuf_release(msg->msg_cert.id_buf);
+  241|    933|		ibuf_release(msg->msg_cookie);
+  242|    933|		ibuf_release(msg->msg_cookie2);
+  243|    933|		ibuf_release(msg->msg_del_buf);
+  244|    933|		free(msg->msg_eap.eam_user);
+  245|    933|		free(msg->msg_cp_addr);
+  246|    933|		free(msg->msg_cp_addr6);
   247|       |
-  248|    911|		TAILQ_FOREACH_SAFE(prop, &msg->msg_proposals, prop_entry,
-  249|    911|		    proptmp) {
+  248|    933|		TAILQ_FOREACH_SAFE(prop, &msg->msg_proposals, prop_entry,
+  249|    933|		    proptmp) {
   250|      0|			TAILQ_REMOVE(&msg->msg_proposals, prop, prop_entry);
   251|      0|			if (prop->prop_nxforms)
   252|      0|				free(prop->prop_xforms);
   253|      0|			free(prop);
   254|      0|		}
   255|       |
-  256|    911|		while ((cr = SIMPLEQ_FIRST(&msg->msg_certreqs))) {
+  256|    933|		while ((cr = SIMPLEQ_FIRST(&msg->msg_certreqs))) {
   257|      0|			ibuf_release(cr->cr_data);
   258|      0|			SIMPLEQ_REMOVE_HEAD(&msg->msg_certreqs, cr_entry);
   259|      0|			free(cr);
   260|      0|		}
-  261|    911|	}
+  261|    933|	}
   262|       |
-  263|    911|	if (msg->msg_data != NULL) {
-  264|    911|		ibuf_release(msg->msg_data);
-  265|    911|		msg->msg_data = NULL;
-  266|    911|	}
-  267|    911|}
+  263|    933|	if (msg->msg_data != NULL) {
+  264|    933|		ibuf_release(msg->msg_data);
+  265|    933|		msg->msg_data = NULL;
+  266|    933|	}
+  267|    933|}
 
 LLVMFuzzerTestOneInput:
-  104|    912|{
-  105|    912|	struct ibuf		*fuzzed;
-  106|    912|	struct ike_header	 hdr;
-  107|    912|	struct iked_message	 msg;
+  104|    934|{
+  105|    934|	struct ibuf		*fuzzed;
+  106|    934|	struct ike_header	 hdr;
+  107|    934|	struct iked_message	 msg;
   108|       |
-  109|    912|	bzero(&hdr, sizeof(hdr));
-  110|    912|	bzero(&msg, sizeof(msg));
+  109|    934|	bzero(&hdr, sizeof(hdr));
+  110|    934|	bzero(&msg, sizeof(msg));
   111|       |
-  112|    912|	fuzzed = ibuf_new(data, size);
-  113|    912|	if (fuzzed == NULL){
+  112|    934|	fuzzed = ibuf_new(data, size);
+  113|    934|	if (fuzzed == NULL){
   114|      0|		fprintf(stderr, "%s\n", "ERROR: fuzzed == NULL! "
   115|      0|		    "(hint: fuzz-input too long?)");
   116|      0|		return -1;
   117|      0|	}	
   118|       |	
   119|       |	/* size too small? */
-  120|    912|	if (size < sizeof(cookies) + sizeof(genhdr)){
+  120|    934|	if (size < sizeof(cookies) + sizeof(genhdr)){
   121|      1|		ibuf_free(fuzzed);
   122|      1|		return 0;
   123|      1|	}	       
   124|       |
-  125|    911|	prepare_header(&hdr, fuzzed);
-  126|    911|	prepare_message(&msg, fuzzed);
+  125|    933|	prepare_header(&hdr, fuzzed);
+  126|    933|	prepare_message(&msg, fuzzed);
   127|       |
-  128|    911|	ikev2_pld_parse(NULL, &hdr, &msg, 0);
+  128|    933|	ikev2_pld_parse(NULL, &hdr, &msg, 0);
   129|       |
-  130|    911|	ikev2_msg_cleanup(NULL, &msg);
+  130|    933|	ikev2_msg_cleanup(NULL, &msg);
   131|       |
-  132|    911|	return 0;
-  133|    912|}
+  132|    933|	return 0;
+  133|    934|}
 test_parser_fuzz.c:prepare_header:
-   75|    911|{
-   76|    911|	bzero(hdr, sizeof(*hdr));
-   77|    911|	bcopy(get_icookie(ibuf_data(data)), &hdr->ike_ispi,
-   78|    911|	    sizeof(hdr->ike_ispi));
-   79|    911|	bcopy(get_rcookie(ibuf_data(data)), &hdr->ike_rspi,
-   80|    911|	    sizeof(hdr->ike_rspi));
-   81|    911|	hdr->ike_nextpayload = get_nextpayload(ibuf_data(data));
-   82|    911|	hdr->ike_version = get_version(ibuf_data(data));
-   83|    911|	hdr->ike_exchange = get_exchange(ibuf_data(data));
-   84|    911|	hdr->ike_length = get_length(ibuf_data(data));
-   85|    911|}
+   75|    933|{
+   76|    933|	bzero(hdr, sizeof(*hdr));
+   77|    933|	bcopy(get_icookie(ibuf_data(data)), &hdr->ike_ispi,
+   78|    933|	    sizeof(hdr->ike_ispi));
+   79|    933|	bcopy(get_rcookie(ibuf_data(data)), &hdr->ike_rspi,
+   80|    933|	    sizeof(hdr->ike_rspi));
+   81|    933|	hdr->ike_nextpayload = get_nextpayload(ibuf_data(data));
+   82|    933|	hdr->ike_version = get_version(ibuf_data(data));
+   83|    933|	hdr->ike_exchange = get_exchange(ibuf_data(data));
+   84|    933|	hdr->ike_length = get_length(ibuf_data(data));
+   85|    933|}
 test_parser_fuzz.c:get_icookie:
-   39|    911|{
-   40|    911|	return &data[OFFSET_ICOOKIE];
-   41|    911|}
+   39|    933|{
+   40|    933|	return &data[OFFSET_ICOOKIE];
+   41|    933|}
 test_parser_fuzz.c:get_rcookie:
-   45|    911|{
-   46|    911|	return &data[OFFSET_RCOOKIE];
-   47|    911|}
+   45|    933|{
+   46|    933|	return &data[OFFSET_RCOOKIE];
+   47|    933|}
 test_parser_fuzz.c:get_nextpayload:
-   51|    911|{
-   52|    911|	return data[OFFSET_NEXTPAYLOAD];
-   53|    911|}
+   51|    933|{
+   52|    933|	return data[OFFSET_NEXTPAYLOAD];
+   53|    933|}
 test_parser_fuzz.c:get_version:
-   57|    911|{
-   58|    911|	return data[OFFSET_VERSION];
-   59|    911|}
+   57|    933|{
+   58|    933|	return data[OFFSET_VERSION];
+   59|    933|}
 test_parser_fuzz.c:get_exchange:
-   63|    911|{
-   64|    911|	return data[OFFSET_EXCHANGE];
-   65|    911|}
+   63|    933|{
+   64|    933|	return data[OFFSET_EXCHANGE];
+   65|    933|}
 test_parser_fuzz.c:get_length:
-   69|    911|{
-   70|    911|	return *(u_int32_t *)&data[OFFSET_LENGTH];
-   71|    911|}
+   69|    933|{
+   70|    933|	return *(u_int32_t *)&data[OFFSET_LENGTH];
+   71|    933|}
 test_parser_fuzz.c:prepare_message:
-   89|    911|{
-   90|    911|	static struct iked_sa	sa;
+   89|    933|{
+   90|    933|	static struct iked_sa	sa;
    91|       |
-   92|    911|	bzero(&sa, sizeof(sa));
-   93|    911|	bzero(msg, sizeof(*msg));
+   92|    933|	bzero(&sa, sizeof(sa));
+   93|    933|	bzero(msg, sizeof(*msg));
    94|       |
-   95|    911|	msg->msg_sa = &sa;
-   96|    911|	msg->msg_data = data;
-   97|    911|	msg->msg_e = 1;
-   98|    911|	msg->msg_parent = msg;
-   99|    911|}
+   95|    933|	msg->msg_sa = &sa;
+   96|    933|	msg->msg_data = data;
+   97|    933|	msg->msg_e = 1;
+   98|    933|	msg->msg_parent = msg;
+   99|    933|}
 
